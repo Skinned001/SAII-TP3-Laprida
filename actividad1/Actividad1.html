@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro de Alumnos</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f2eb;
+    --surface: #ffffff;
+    --border: #d6cfc0;
+    --text: #1a1714;
+    --text-muted: #7a7166;
+    --accent: #c0392b;
+    --accent-light: #f9eceb;
+    --row-alt: #faf8f4;
+    --radius: 4px;
+    --shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 40px 20px 60px;
+  }
+
+  header {
+    max-width: 720px;
+    margin: 0 auto 36px;
+    border-bottom: 2px solid var(--text);
+    padding-bottom: 16px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  header h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  header span {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 300;
+  }
+
+  .card {
+    max-width: 720px;
+    margin: 0 auto 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px 28px;
+  }
+
+  .card h2 {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 10px;
+    align-items: end;
+  }
+
+  .field label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .field input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: 'Sora', sans-serif;
+    font-size: 0.9rem;
+    background: var(--bg);
+    color: var(--text);
+    transition: border-color 0.15s;
+    outline: none;
+  }
+
+  .field input:focus {
+    border-color: var(--text);
+    background: var(--surface);
+  }
+
+  .field input.error {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  button[type="submit"] {
+    padding: 9px 22px;
+    background: var(--text);
+    color: var(--bg);
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, transform 0.1s;
+    letter-spacing: 0.5px;
+  }
+
+  button[type="submit"]:hover { background: #333; }
+  button[type="submit"]:active { transform: scale(0.97); }
+
+  .msg-error {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: var(--accent);
+    font-weight: 600;
+    min-height: 1.2em;
+  }
+
+  /* TABLE */
+  .table-wrap {
+    overflow-x: auto;
+  }
+
+  .count-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  thead tr {
+    border-bottom: 2px solid var(--text);
+  }
+
+  thead th {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    text-align: left;
+    padding: 0 10px 10px;
+    font-weight: 400;
+  }
+
+  thead th.col-nota { text-align: center; }
+  thead th.col-accion { text-align: center; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+
+  tbody tr:nth-child(even) { background: var(--row-alt); }
+  tbody tr:hover { background: #ede9e0; }
+
+  tbody td {
+    padding: 11px 10px;
+    vertical-align: middle;
+  }
+
+  td.col-rank {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    width: 36px;
+  }
+
+  td.col-nombre { font-weight: 600; }
+  td.col-edad { color: var(--text-muted); }
+
+  td.col-nota {
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  .nota-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+  }
+
+  .nota-alta  { background: #e8f5e9; color: #2e7d32; }
+  .nota-media { background: #fff8e1; color: #f57f17; }
+  .nota-baja  { background: var(--accent-light); color: var(--accent); }
+
+  td.col-accion { text-align: center; }
+
+  .btn-del {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-del:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .empty {
+    text-align: center;
+    padding: 32px 0;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-style: italic;
+  }
+
+  @media (max-width: 560px) {
+    .form-row {
+      grid-template-columns: 1fr 1fr;
+    }
+    .form-row .field:first-child {
+      grid-column: 1 / -1;
+    }
+    button[type="submit"] {
+      grid-column: 1 / -1;
+      width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Registro de Alumnos</h1>
+  <span>ordenado por nota · nombre</span>
+</header>
+
+<div class="card">
+  <h2>Nuevo alumno</h2>
+  <div class="form-row">
+    <div class="field">
+      <label for="nombre">Nombre</label>
+      <input type="text" id="nombre" placeholder="Ej: Ana García" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="edad">Edad</label>
+      <input type="number" id="edad" placeholder="18" min="1" max="120">
+    </div>
+    <div class="field">
+      <label for="nota">Nota</label>
+      <input type="number" id="nota" placeholder="7.5" min="0" max="10" step="0.01">
+    </div>
+    <button type="submit" onclick="guardar()">Guardar</button>
+  </div>
+  <div class="msg-error" id="error"></div>
+</div>
+
+<div class="card">
+  <div class="count-label" id="count-label">— alumnos</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nombre</th>
+          <th>Edad</th>
+          <th class="col-nota">Nota</th>
+          <th class="col-accion"></th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'alumnos_v1';
+
+  function cargarAlumnos() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    } catch { return []; }
+  }
+
+  function guardarAlumnos(lista) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(lista));
+  }
+
+  function ordenar(lista) {
+    return [...lista].sort((a, b) => {
+      if (b.nota !== a.nota) return b.nota - a.nota;
+      return a.nombre.localeCompare(b.nombre, 'es');
+    });
+  }
+
+  function notaClass(n) {
+    if (n >= 7) return 'nota-alta';
+    if (n >= 4) return 'nota-media';
+    return 'nota-baja';
+  }
+
+  function renderTabla() {
+    const lista = ordenar(cargarAlumnos());
+    const tbody = document.getElementById('tbody');
+    const label = document.getElementById('count-label');
+
+    label.textContent = lista.length === 1
+      ? '1 alumno'
+      : `${lista.length} alumnos`;
+
+    if (lista.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty">No hay alumnos cargados aún.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = lista.map((a, i) => `
+      <tr>
+        <td class="col-rank">${i + 1}</td>
+        <td class="col-nombre">${escHtml(a.nombre)}</td>
+        <td class="col-edad">${a.edad}</td>
+        <td class="col-nota">
+          <span class="nota-badge ${notaClass(a.nota)}">${a.nota % 1 === 0 ? a.nota : a.nota}</span>
+        </td>
+        <td class="col-accion">
+          <button class="btn-del" onclick="eliminar(${a.id})">Borrar</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function guardar() {
+    const nombreEl = document.getElementById('nombre');
+    const edadEl   = document.getElementById('edad');
+    const notaEl   = document.getElementById('nota');
+    const errorEl  = document.getElementById('error');
+
+    [nombreEl, edadEl, notaEl].forEach(el => el.classList.remove('error'));
+    errorEl.textContent = '';
+
+    const nombre = nombreEl.value.trim();
+    const edad   = parseInt(edadEl.value);
+    const nota   = parseFloat(notaEl.value);
+
+    let err = '';
+    if (!nombre)                        { nombreEl.classList.add('error'); err = 'Ingresá un nombre.'; }
+    else if (isNaN(edad) || edad < 1)   { edadEl.classList.add('error');   err = 'Ingresá una edad válida.'; }
+    else if (isNaN(nota) || nota < 0 || nota > 10) { notaEl.classList.add('error'); err = 'La nota debe estar entre 0 y 10.'; }
+
+    if (err) { errorEl.textContent = err; return; }
+
+    const lista = cargarAlumnos();
+    const id = Date.now();
+    lista.push({ id, nombre, edad, nota });
+    guardarAlumnos(lista);
+
+    nombreEl.value = '';
+    edadEl.value   = '';
+    notaEl.value   = '';
+    nombreEl.focus();
+
+    renderTabla();
+  }
+
+  function eliminar(id) {
+    const lista = cargarAlumnos().filter(a => a.id !== id);
+    guardarAlumnos(lista);
+    renderTabla();
+  }
+
+  // Enter para guardar
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') guardar();
+  });
+
+  renderTabla();
+</script>
+</body>
+</html>
